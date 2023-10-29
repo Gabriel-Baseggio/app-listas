@@ -1,12 +1,14 @@
 
-import { StyleSheet, Button, Text, Pressable } from "react-native";
+import { BaseRouter } from "@react-navigation/native";
+import { StyleSheet, Text, Pressable } from "react-native";
 
 
-const Button = ({ props }) => {
+const Button = () => {
+    
     return (
-        <Pressable onPress={props.onPress} style={styles.button}>
-            <Text style={styles.button}>
-                {props.text}
+        <Pressable style={styles.button}>
+            <Text style={styles.text}>
+
             </Text>
         </Pressable>
     );
