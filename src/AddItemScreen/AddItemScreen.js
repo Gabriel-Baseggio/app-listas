@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 // import { useIsFocused } from "@react-navigation/native";
 // import { AsyncStorage } from "@react-native-async-storage/async-storage";
@@ -6,28 +6,42 @@ import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 // import metadata from "../storage.metadata.json";
 
 const AddItemScreen = ({ route, navigation }) => {
-    const { text, item } = route.params;
-    const [itemName, setItemName] = useState("");
+    const { text, item, list, lists } = route.params;
+    const [itemValue, setItemValue] = useState("");
 
-    const getItemName = () => {
-        // Cód para pegar o nome de uma lista já existente com nome e data do Storage (list: {name, lastUpdate})
-        setItemName(name);
-    }
-
-    const saveItemName = () => {
-        // Cód para salvar o nome de uma lista já existente com nome e data do Storage (list: {name, lastUpdate})
+    const sortByDate = (a, b) => {
+        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     const addItem = () => {
-        if (!itemName) {
-            alert("Por favor digite um nome!")
+        if (!itemValue) {
+            alert("Por favor digite um valor!")
             return
         }
-        
-        // Cód para criar e adicionar a lista
 
-        alert(itemName)
-        navigation.navigate("ListScreen")
+        if (item) {
+
+            item.value = itemValue;
+            item.lastUpdate = new Date();
+
+        } else {
+
+            const newItem = {
+                key: list.length,
+                value: itemValue,
+                lastUpdate: new Date(),
+            };
+    
+            list.items.push(newItem);
+        }
+        list.lastUpdate = new Date();
+    
+        list.items.sort(sortByDate);
+        navigation.navigate("ListScreen", { list: list, lists: lists })
     }
 
     const updateDate = () => {
@@ -36,14 +50,14 @@ const AddItemScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>{text} item {item.value}</Text>
+            <Text>{text} {itemValue ? itemValue : "item"}</Text>
             <TextInput 
-                placeholder="Digite o nome do item"
-                value={itemName}
-                onChangeText={setItemName}
+                placeholder="Digite o valor do item"
+                value={itemValue}
+                onChangeText={setItemValue}
             />
             <Button
-                title={`Adicionar item`}
+                title={`${text} item`}
                 onPress={() => {addItem()}}
             />
         </View>

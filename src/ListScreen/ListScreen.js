@@ -6,36 +6,36 @@ import { StyleSheet, Button, Text, Pressable, View } from "react-native";
 // import metadata from "../storage.metadata.json";
 
 const ListScreen = ({ route, navigation }) => {
-    const { list } = route.params;
+    const { list, lists } = route.params;
+    const [items, setItems] = useState(list.items);
 
-    const getList = () => {
-        // Cód para pegar a lista de listas
-        setList(savedList);
-    }
-
-    const saveList = () => {
-        // Cód para salvar a lista de listas
+    const deleteItem = (item) => {
+        items.forEach(itemFor, i => {
+            if (itemFor.key == item.key) {
+                let newItems = items;
+                newItems.splice(i, 1);
+                setItems(newItems);
+            }
+        });
     }
 
     return (
         <View style={styles.container}>
             <Text>{list.name}</Text>
             
-            <Button title="Adicionar um item" onPress={() => navigation.navigate("AddItemScreen")} />
+            <Button title="Adicionar um item" onPress={() => navigation.navigate("AddItemScreen", { text: "Adicionar" , list: list, lists: lists })} />
 
             {
-                list.items.map((item) => {
+                items.map((item) => {
                     return (
                         <View key={item.key} style={styles.itemContainer}>
-                            <Pressable style={styles.item} onPress={() => { navigation.navigate("ItemScreen", { item: item }) }}>
-                                <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
-                                <Text style={styles.itemLastUpdate} key={item.value + item.lastUpdate}>{item.lastUpdate}</Text>
-                                <Button
-                                    title="Editar valor"
-                                    onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", item: item }) }}
-                                />
-                                <Button title="Excluir" />
-                            </Pressable>
+                            <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
+                            <Text style={styles.itemLastUpdate} key={item.value + item.lastUpdate}>{item.lastUpdate.toLocaleString()}</Text>
+                            <Button
+                                title="Editar"
+                                onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", item: item, list: list, lists: lists }) }}
+                            />
+                            <Button title="X" onPress={() => deleteItem(item)}/>
                         </View>
                     );
                 })
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     itemValue: {
+        width: "50px",
         color: '#FFFFFF',
     },
     itemLastUpdate: {

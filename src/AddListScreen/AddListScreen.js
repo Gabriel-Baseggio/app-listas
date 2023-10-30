@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 // import { useIsFocused } from "@react-navigation/native";
 // import { AsyncStorage } from "@react-native-async-storage/async-storage";
@@ -6,16 +6,15 @@ import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 // import metadata from "../storage.metadata.json";
 
 const AddListScreen = ({ route, navigation }) => {
-    const { text, list } = route.params;
+    const { text, list, lists } = route.params;
     const [listName, setListName] = useState("");
-
-    const getListName = () => {
-        // Cód para pegar o nome de uma lista já existente com nome e data (list: {name, lastUpdate})
-        setListName(name);
-    }
-
-    const saveListName = () => {
-        // Cód para salvar o nome de uma lista já existente com nome e data do Storage (list: {name, lastUpdate})
+    
+    const sortByDate = (a, b) => {
+        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
+            return -1;
+        } else {
+            return 1;
+        }
     }
 
     const addList = () => {
@@ -24,10 +23,25 @@ const AddListScreen = ({ route, navigation }) => {
             return
         }
 
-        // Cód para criar e adicionar a lista
+        if (list) {
 
-        alert(listName)
-        navigation.navigate("HomeScreen")
+            list.name = listName;
+            list.lastUpdate = new Date();
+
+        } else {
+
+            const newList = {
+                key: lists.length,
+                name: listName,
+                items: new Array(),
+                lastUpdate: new Date(),
+            };
+    
+            lists.push(newList);
+        }
+
+        lists.sort(sortByDate);
+        navigation.navigate("HomeScreen");
     }
 
     const updateDate = () => {
@@ -36,7 +50,7 @@ const AddListScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>{text} lista {list.key}</Text>
+            <Text>{text} {listName ? listName : "lista"}</Text>
             <TextInput
                 placeholder="Digite o nome da lista"
                 value={listName}
@@ -44,7 +58,7 @@ const AddListScreen = ({ route, navigation }) => {
             />
             <Button
                 title={`${text} lista`}
-                onPress={() => { addList() }}
+                onPress={() => {addList()}}
             />
         </View>
     );
