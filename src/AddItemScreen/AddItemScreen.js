@@ -5,7 +5,8 @@ import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 
 // import metadata from "../storage.metadata.json";
 
-const AddItemScreen = ({ navigation }) => {
+const AddItemScreen = ({ route, navigation }) => {
+    const { text, item } = route.params;
     const [itemName, setItemName] = useState("");
 
     const getItemName = () => {
@@ -35,7 +36,7 @@ const AddItemScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>Adicionar/editar item</Text>
+            <Text>{text} item {item.value}</Text>
             <TextInput 
                 placeholder="Digite o nome do item"
                 value={itemName}

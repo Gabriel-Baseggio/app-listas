@@ -1,21 +1,12 @@
 import { useState } from "react";
-import { StyleSheet, Button, Text, View } from "react-native";
+import { StyleSheet, Button, Text, Pressable, View } from "react-native";
 // import { useIsFocused } from "@react-navigation/native";
 // import { AsyncStorage } from "@react-native-async-storage/async-storage";
 
 // import metadata from "../storage.metadata.json";
 
-const ListScreen = ({ navigation }) => {
-    const [list, setList] = useState({
-        key: 1,
-        name: "list1",
-        items: [
-            {value: 1, lastUpdate: "29/10/2023 22:00"},
-            {value: 2, lastUpdate: "29/10/2023 22:00"},
-            {value: 3, lastUpdate: "29/10/2023 22:00"},
-        ],
-        lastUpdate: "29/10/2023 22:00",
-    });
+const ListScreen = ({ route, navigation }) => {
+    const { list } = route.params;
 
     const getList = () => {
         // Cód para pegar a lista de listas
@@ -28,18 +19,23 @@ const ListScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>Nome da lista</Text>
+            <Text>{list.name}</Text>
             
             <Button title="Adicionar um item" onPress={() => navigation.navigate("AddItemScreen")} />
 
             {
                 list.items.map((item) => {
                     return (
-                        <View key={list.key + item.value} style={styles.itemContainer}>
-                            <Text style={styles.item} key={list.name + item.value}>{item.value}</Text>
-                            <Text style={styles.itemLastUpdate} key={list.key + item.lastUpdate}>{item.lastUpdate}</Text>
-                            <Button title="Editar" />
-                            <Button title="Excluir" />
+                        <View key={item.key} style={styles.itemContainer}>
+                            <Pressable style={styles.item} onPress={() => { navigation.navigate("ItemScreen", { item: item }) }}>
+                                <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
+                                <Text style={styles.itemLastUpdate} key={item.value + item.lastUpdate}>{item.lastUpdate}</Text>
+                                <Button
+                                    title="Editar valor"
+                                    onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", item: item }) }}
+                                />
+                                <Button title="Excluir" />
+                            </Pressable>
                         </View>
                     );
                 })
@@ -54,6 +50,8 @@ export default ListScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        gap: "15px",
+        padding: "15px",
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
@@ -68,6 +66,13 @@ const styles = StyleSheet.create({
         width: "95%",
     },
     item: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: 'center',
+        justifyContent: "space-around",
+        width: "100%",
+    },
+    itemValue: {
         color: '#FFFFFF',
     },
     itemLastUpdate: {

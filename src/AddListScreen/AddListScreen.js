@@ -5,7 +5,8 @@ import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 
 // import metadata from "../storage.metadata.json";
 
-const AddListScreen = ({ navigation }) => {
+const AddListScreen = ({ route, navigation }) => {
+    const { text, list } = route.params;
     const [listName, setListName] = useState("");
 
     const getListName = () => {
@@ -22,7 +23,7 @@ const AddListScreen = ({ navigation }) => {
             alert("Por favor digite um nome!")
             return
         }
-        
+
         // Cód para criar e adicionar a lista
 
         alert(listName)
@@ -35,15 +36,15 @@ const AddListScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>Adicionar/editar lista</Text>
-            <TextInput 
+            <Text>{text} lista {list.key}</Text>
+            <TextInput
                 placeholder="Digite o nome da lista"
                 value={listName}
                 onChangeText={setListName}
             />
             <Button
-                title={`Adicionar lista`}
-                onPress={() => {addList()}}
+                title={`${text} lista`}
+                onPress={() => { addList() }}
             />
         </View>
     );
@@ -54,6 +55,8 @@ export default AddListScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        gap: "15px",
+        padding: "15px",
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
