@@ -1,25 +1,36 @@
 import { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View, Button, Pressable } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
-import { AsyncStorage } from "@react-native-async-storage/async-storage";
-
-// import Button from '../Button';
-
-// import metadata from "../storage.metadata.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = ({ navigation }) => {
-    const [lists, setLists] = useState(new Array());
+    const [lists, setLists] = useState(new Array());    
+    const focus = useIsFocused();
+
+    useEffect(() => { getLists() }, [focus]);
+    useEffect(() => { saveLists()}, [lists]);
+
+    const getLists = async () => {
+        const variableLists = await AsyncStorage.getItem("LISTS");
+        setLists(JSON.parse(variableLists));
+    }
+
+    const saveLists = async () => {
+        const saveLists = lists || new Array();
+        await AsyncStorage.setItem("LISTS", JSON.stringify(saveLists));
+    }
+
     const showLists = useMemo(() => {
         return (
             lists.map((list) => {
                 return (
                     <View key={list.key} style={styles.listContainer}>
-                        <Pressable style={styles.list} onPress={() => { navigation.navigate("ListScreen", { list: list, lists: lists }) }}>
+                        <Pressable style={styles.list} onPress={() => { navigation.navigate("ListScreen", { listkey: list.key }) }}>
                             <Text style={styles.listName} key={list.name}>{list.name}</Text>
                             <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate}>{list.lastUpdate.toLocaleString()}</Text>
                             <Button
                                 title="Editar"
-                                onPress={() => { navigation.navigate("AddListScreen", { text: "Editar", list: list, lists: lists }) }}
+                                onPress={() => { navigation.navigate("AddListScreen", { text: "Editar", listkey: list.key }) }}
                             />
                             <Button title="X" onPress={() => deleteList(list)} />
                         </Pressable>
@@ -29,45 +40,14 @@ const HomeScreen = ({ navigation }) => {
         );
     }, [lists]);
 
-    // [
-    //     {
-    //         key: 1, name: "lista1", items: [
-    //             { key: 1, value: 1, lastUpdate: new Date() },
-    //             { key: 2, value: 2, lastUpdate: new Date() },
-    //             { key: 3, value: 3, lastUpdate: new Date() },
-    //         ], lastUpdate: new Date()
-    //     },
-
-    //     {
-    //         key: 2, name: "lista2", items: [
-    //             { key: 1, value: 4, lastUpdate: new Date() },
-    //             { key: 2, value: 5, lastUpdate: new Date() },
-    //             { key: 3, value: 6, lastUpdate: new Date() },
-    //         ], lastUpdate: new Date()
-    //     },
-    // ]
-
-    const getLists = () => {
-        // Cód para pegar a lista de listas
-        if (!hasLists) {
-
-        }
-        setLists(savedLists);
-    }
-
-    const saveLists = () => {
-        // Cód para salvar a lista de listas
-    }
-
     const deleteList = (list) => {
-        lists.forEach((lista, i) => {
+        let newLists = lists;
+        newLists.forEach((lista, i) => {
             if (lista.key == list.key) {
-                let newLists = lists;
                 newLists.splice(i, 1);
-                setlists(newLists);
             }
         });
-        console.log(lists);
+        setLists([...newLists]);
     }
 
     return (
@@ -75,7 +55,7 @@ const HomeScreen = ({ navigation }) => {
             <Text>Tela inicial</Text>
             <Button
                 title="Adicionar uma lista"
-                onPress={() => { navigation.navigate("AddListScreen", { text: "Adicionar", list: undefined, lists: lists }) }}
+                onPress={() => { navigation.navigate("AddListScreen", { text: "Adicionar" }) }}
             />
 
             {showLists}
@@ -89,27 +69,28 @@ export default HomeScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        gap: "15px",
-        padding: "15px",
+        gap: 15,
+        padding: 15,
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
     },
     listContainer: {
-        display: "flex",
+        flex: 1,
         flexDirection: "row",
-        padding: "5px",
+        padding: 5,
         backgroundColor: '#0000FF',
         alignItems: 'center',
         justifyContent: "space-around",
         width: "95%",
     },
     list: {
-        display: "flex",
+        flex: 1,
         flexDirection: "row",
         alignItems: 'center',
         justifyContent: "space-around",
         width: "100%",
+        height: "auto",
     },
     listName: {
         width: "50px",

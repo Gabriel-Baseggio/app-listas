@@ -5,18 +5,33 @@ import { StyleSheet, Button, Text, Pressable, View } from "react-native";
 
 // import metadata from "../storage.metadata.json";
 
+// ARRUMA AQUI COM BASE NO HOMESCREEN
+
 const ListScreen = ({ route, navigation }) => {
-    const { list, lists } = route.params;
-    const [items, setItems] = useState(list.items);
+    const { listkey } = route.params;
+    const [items, setItems] = useState();
+
+    useEffect(() => { getLists() }, [focus]);
+    useEffect(() => { saveLists()}, [lists]);
+
+    const getLists = async () => {
+        const variableLists = await AsyncStorage.getItem("LISTS");
+        setLists(JSON.parse(variableLists));
+    }
+
+    const saveLists = async () => {
+        const saveLists = lists || new Array();
+        await AsyncStorage.setItem("LISTS", JSON.stringify(saveLists));
+    }
 
     const deleteItem = (item) => {
-        items.forEach(itemFor, i => {
+        let newItems = items;
+        newItems.forEach(itemFor, i => {
             if (itemFor.key == item.key) {
-                let newItems = items;
                 newItems.splice(i, 1);
-                setItems(newItems);
             }
         });
+        setItems([...newItems]);
     }
 
     return (
@@ -50,7 +65,7 @@ export default ListScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        gap: "15px",
+        gap: 15,
         padding: "15px",
         backgroundColor: '#DEE5E5',
         alignItems: 'center',

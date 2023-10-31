@@ -3,7 +3,7 @@ import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 // import { useIsFocused } from "@react-navigation/native";
 // import { AsyncStorage } from "@react-native-async-storage/async-storage";
 
-// import metadata from "../storage.metadata.json";
+// ARRUMA AQUI COM BASE NO ADDLISTSCREEN
 
 const AddItemScreen = ({ route, navigation }) => {
     const { text, item, list, lists } = route.params;
@@ -69,6 +69,8 @@ export default AddItemScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        gap: 15,
+        padding: "15px",
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",

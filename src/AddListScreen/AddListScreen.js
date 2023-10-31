@@ -1,14 +1,27 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Button, Text, TextInput, View } from "react-native";
-// import { useIsFocused } from "@react-navigation/native";
-// import { AsyncStorage } from "@react-native-async-storage/async-storage";
-
-// import metadata from "../storage.metadata.json";
+import { useIsFocused } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AddListScreen = ({ route, navigation }) => {
-    const { text, list, lists } = route.params;
+    const { text, listkey } = route.params;
     const [listName, setListName] = useState("");
-    
+    const [lists, setLists] = useState(new Array());
+    const focus = useIsFocused();
+
+    useEffect(() => { getLists() }, [focus]);
+    useEffect(() => { saveLists()}, [lists]);
+
+    const getLists = async () => {
+        const variableLists = await AsyncStorage.getItem("LISTS");
+        setLists(JSON.parse(variableLists));
+    }
+
+    const saveLists = async () => {
+        const saveLists = lists || new Array();
+        await AsyncStorage.setItem("LISTS", JSON.stringify(saveLists));
+    }
+
     const sortByDate = (a, b) => {
         if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
             return -1;
@@ -23,13 +36,15 @@ const AddListScreen = ({ route, navigation }) => {
             return
         }
 
-        if (list) {
-
-            list.name = listName;
-            list.lastUpdate = new Date();
+        if (listkey != undefined) {
+            lists.forEach((list) => {
+                if (list.key == listkey) {
+                    list.name = listName;
+                    list.lastUpdate = new Date();
+                }
+            });
 
         } else {
-
             const newList = {
                 key: lists.length,
                 name: listName,
@@ -41,13 +56,10 @@ const AddListScreen = ({ route, navigation }) => {
         }
 
         lists.sort(sortByDate);
+        saveLists();
         navigation.navigate("HomeScreen");
     }
-
-    const updateDate = () => {
-        //Cód para mudar a data de alteração da lista
-    }
-
+    
     return (
         <View style={styles.container}>
             <Text>{text} {listName ? listName : "lista"}</Text>
@@ -69,8 +81,8 @@ export default AddListScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        gap: "15px",
-        padding: "15px",
+        gap: 15,
+        padding: 15,
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
