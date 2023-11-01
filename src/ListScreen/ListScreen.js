@@ -1,22 +1,33 @@
-import { useState } from "react";
-import { StyleSheet, Button, Text, Pressable, View } from "react-native";
-// import { useIsFocused } from "@react-navigation/native";
-// import { AsyncStorage } from "@react-native-async-storage/async-storage";
-
-// import metadata from "../storage.metadata.json";
+import { useEffect, useState, useMemo } from "react";
+import { StyleSheet, Button, Text, View } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // ARRUMA AQUI COM BASE NO HOMESCREEN
 
 const ListScreen = ({ route, navigation }) => {
     const { listkey } = route.params;
-    const [items, setItems] = useState();
+
+    const [lists, setLists] = useState(new Array());
+    const [list, setList] = useState(new Object());
+    const [items, setItems] = useState(new Array());
+
+    const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
-    useEffect(() => { saveLists()}, [lists]);
 
     const getLists = async () => {
-        const variableLists = await AsyncStorage.getItem("LISTS");
-        setLists(JSON.parse(variableLists));
+        let variableLists = await AsyncStorage.getItem("LISTS");
+        variableLists = JSON.parse(variableLists);
+        if (variableLists) {
+            setLists([...variableLists]);
+            variableLists.forEach((lista) => {
+                if (lista.key == listkey) {
+                    setList(lista);
+                    setItems([...lista.items]);
+                }
+            });
+        }
     }
 
     const saveLists = async () => {
@@ -25,36 +36,65 @@ const ListScreen = ({ route, navigation }) => {
     }
 
     const deleteItem = (item) => {
+        let newLists = lists;
+        let newList = list;
         let newItems = items;
-        newItems.forEach(itemFor, i => {
+
+        newItems.forEach((itemFor, i) => {
             if (itemFor.key == item.key) {
                 newItems.splice(i, 1);
             }
         });
+        
+        newItems = resetKeys(newItems);
         setItems([...newItems]);
+
+        newList.lastUpdate = new Date();
+        setList([newList])
+
+        newLists.forEach(lista => {
+            if (lista.key == listkey) {
+                lista.items = newItems;
+            }
+        });
+        setLists([...newLists]);
+
+        saveLists();
     }
+
+    const resetKeys = (newItems) => {
+        newItems.forEach((item, i) => {
+            item.key = i;
+        });
+
+        return newItems;
+    }
+
+    const showItems = useMemo(() => {
+        return (
+            items.map((item) => {
+                return (
+                    <View key={item.key} style={styles.itemContainer}>
+                        <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
+                        <Text style={styles.itemLastUpdate} key={item.value + item.lastUpdate}>{item.lastUpdate.toLocaleString()}</Text>
+                        <Button
+                            title="Editar"
+                            onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", listkey: listkey, itemkey: item.key }) }}
+                        />
+                        <Button title="X" onPress={() => deleteItem(item)} />
+                    </View>
+                );
+            })
+        );
+    }, [items]);
 
     return (
         <View style={styles.container}>
             <Text>{list.name}</Text>
-            
-            <Button title="Adicionar um item" onPress={() => navigation.navigate("AddItemScreen", { text: "Adicionar" , list: list, lists: lists })} />
 
-            {
-                items.map((item) => {
-                    return (
-                        <View key={item.key} style={styles.itemContainer}>
-                            <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
-                            <Text style={styles.itemLastUpdate} key={item.value + item.lastUpdate}>{item.lastUpdate.toLocaleString()}</Text>
-                            <Button
-                                title="Editar"
-                                onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", item: item, list: list, lists: lists }) }}
-                            />
-                            <Button title="X" onPress={() => deleteItem(item)}/>
-                        </View>
-                    );
-                })
-            }
+            <Button title="Adicionar um item" onPress={() => navigation.navigate("AddItemScreen", { text: "Adicionar", listkey: listkey })} />
+
+            {showItems}
 
         </View>
     );

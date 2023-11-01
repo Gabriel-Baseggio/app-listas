@@ -10,11 +10,12 @@ const AddListScreen = ({ route, navigation }) => {
     const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
-    useEffect(() => { saveLists()}, [lists]);
 
     const getLists = async () => {
         const variableLists = await AsyncStorage.getItem("LISTS");
-        setLists(JSON.parse(variableLists));
+        if (variableLists) {
+            setLists([...JSON.parse(variableLists)]);
+        }
     }
 
     const saveLists = async () => {
@@ -36,26 +37,30 @@ const AddListScreen = ({ route, navigation }) => {
             return
         }
 
+        let newLists = lists;
+
         if (listkey != undefined) {
-            lists.forEach((list) => {
+            newLists.forEach((list) => {
                 if (list.key == listkey) {
                     list.name = listName;
                     list.lastUpdate = new Date();
                 }
             });
-
         } else {
             const newList = {
                 key: lists.length,
                 name: listName,
-                items: new Array(),
+                // items: new Array(),
+                items: [
+                    {key: 0, value: "1", lastUpdate: new Date()}
+                ],
                 lastUpdate: new Date(),
             };
     
-            lists.push(newList);
+            newLists.push(newList);
         }
 
-        lists.sort(sortByDate);
+        newLists.sort(sortByDate);
         saveLists();
         navigation.navigate("HomeScreen");
     }

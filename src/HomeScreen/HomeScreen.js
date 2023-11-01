@@ -8,11 +8,12 @@ const HomeScreen = ({ navigation }) => {
     const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
-    useEffect(() => { saveLists()}, [lists]);
 
     const getLists = async () => {
         const variableLists = await AsyncStorage.getItem("LISTS");
-        setLists(JSON.parse(variableLists));
+        if (variableLists) {
+            setLists([...JSON.parse(variableLists)]);
+        }
     }
 
     const saveLists = async () => {
@@ -47,7 +48,20 @@ const HomeScreen = ({ navigation }) => {
                 newLists.splice(i, 1);
             }
         });
+        resetKeys(newLists);
+        saveLists();
+    }
+
+    const resetKeys = (newLists) => {
+        newLists.forEach((lista, i) => {
+            lista.key = i;
+        });
         setLists([...newLists]);
+    }
+
+    const resetLists = async () => {
+        await AsyncStorage.setItem("LISTS", JSON.stringify(new Array()));
+        getLists();
     }
 
     return (
@@ -56,6 +70,10 @@ const HomeScreen = ({ navigation }) => {
             <Button
                 title="Adicionar uma lista"
                 onPress={() => { navigation.navigate("AddListScreen", { text: "Adicionar" }) }}
+            />
+            <Button
+                title="Resetar as listas"
+                onPress={() => resetLists()}
             />
 
             {showLists}

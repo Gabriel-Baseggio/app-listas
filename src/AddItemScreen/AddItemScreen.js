@@ -1,13 +1,40 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Button, Text, TextInput, View } from "react-native";
-// import { useIsFocused } from "@react-navigation/native";
-// import { AsyncStorage } from "@react-native-async-storage/async-storage";
+import { useIsFocused } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// ARRUMA AQUI COM BASE NO ADDLISTSCREEN
+//CONTINUAR A LÓGICA PARA ADICIONAR OU EDITAR UM ITEM - VALUE DO ITEM
 
 const AddItemScreen = ({ route, navigation }) => {
-    const { text, item, list, lists } = route.params;
+    const { text, listkey, itemkey } = route.params;
+
     const [itemValue, setItemValue] = useState("");
+
+    const [lists, setLists] = useState(new Array());
+    const [list, setList] = useState(new Object());
+    const [items, setItems] = useState(new Array());
+    const focus = useIsFocused();
+
+    useEffect(() => { getLists() }, [focus]);
+
+    const getLists = async () => {
+        let variableLists = await AsyncStorage.getItem("LISTS");
+        variableLists = JSON.parse(variableLists);
+        if (variableLists) {
+            setLists([...variableLists]);
+            variableLists.forEach((lista) => {
+                if (lista.key == listkey) {
+                    setList(lista);
+                    setItems([...lista.items]);
+                }
+            });
+        }
+    }
+
+    const saveLists = async () => {
+        const saveLists = lists || new Array();
+        await AsyncStorage.setItem("LISTS", JSON.stringify(saveLists));
+    }
 
     const sortByDate = (a, b) => {
         if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
@@ -23,10 +50,20 @@ const AddItemScreen = ({ route, navigation }) => {
             return
         }
 
-        if (item) {
+        let newLists = lists;
+        let newList = newLists.filter((lista) => {
+            return lista.key == listkey
+        })[0];
+        let newItems = newList.items;
+        let newItem = newItems.filter((item) => {
+            return item.key == itemkey
+        })[0];
 
-            item.value = itemValue;
-            item.lastUpdate = new Date();
+
+        if (items) {
+
+            newItem.value = itemValue;
+            newItem.lastUpdate = new Date();
 
         } else {
 
@@ -36,12 +73,14 @@ const AddItemScreen = ({ route, navigation }) => {
                 lastUpdate: new Date(),
             };
     
-            list.items.push(newItem);
+            newItems.push(newItem);
+            setItems([...newItems]);
         }
-        list.lastUpdate = new Date();
+        newList.lastUpdate = new Date();
     
-        list.items.sort(sortByDate);
-        navigation.navigate("ListScreen", { list: list, lists: lists })
+        newItems.sort(sortByDate);
+        
+        navigation.navigate("ListScreen", { listkey: listkey })
     }
 
     const updateDate = () => {
