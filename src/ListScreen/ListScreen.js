@@ -3,7 +3,6 @@ import { StyleSheet, Button, Text, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// ARRUMA AQUI COM BASE NO HOMESCREEN
 
 const ListScreen = ({ route, navigation }) => {
     const { listkey } = route.params;

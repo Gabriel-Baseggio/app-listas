@@ -3,8 +3,6 @@ import { StyleSheet, Button, Text, TextInput, View } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-//CONTINUAR A LÓGICA PARA ADICIONAR OU EDITAR UM ITEM - VALUE DO ITEM
-
 const AddItemScreen = ({ route, navigation }) => {
     const { text, listkey, itemkey } = route.params;
 
@@ -55,36 +53,48 @@ const AddItemScreen = ({ route, navigation }) => {
             return lista.key == listkey
         })[0];
         let newItems = newList.items;
-        let newItem = newItems.filter((item) => {
-            return item.key == itemkey
-        })[0];
+        let newItem;
+
+        if (itemkey != undefined) {
+            newItem = newItems.filter((item) => {
+                return item.key == itemkey
+            })[0];
+        }
 
 
-        if (items) {
+        if (newItem != undefined) {
 
             newItem.value = itemValue;
             newItem.lastUpdate = new Date();
 
         } else {
 
-            const newItem = {
+            newItem = {
                 key: list.length,
                 value: itemValue,
                 lastUpdate: new Date(),
             };
     
             newItems.push(newItem);
+            newItems.sort(sortByDate);
             setItems([...newItems]);
         }
-        newList.lastUpdate = new Date();
-    
-        newItems.sort(sortByDate);
-        
-        navigation.navigate("ListScreen", { listkey: listkey })
-    }
 
-    const updateDate = () => {
-        //Cód para mudar a data de alteração da lista
+        newList.items = newItems;
+        newList.lastUpdate = new Date();
+        setList(newList);
+
+        newLists.forEach((lista) => {
+            if (lista.key == listakey) {
+                newLists.lista = newList;
+            }
+        });
+    
+        newLists.sort(sortByDate);
+        setLists([...newLists]);
+        
+        saveLists();
+        navigation.navigate("ListScreen", { listkey: listkey })
     }
 
     return (
@@ -109,7 +119,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         gap: 15,
-        padding: "15px",
+        padding: 15,
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
