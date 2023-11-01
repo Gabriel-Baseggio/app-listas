@@ -12,9 +12,17 @@ const AddListScreen = ({ route, navigation }) => {
     useEffect(() => { getLists() }, [focus]);
 
     const getLists = async () => {
-        const variableLists = await AsyncStorage.getItem("LISTS");
+        let variableLists = await AsyncStorage.getItem("LISTS");
+        variableLists = JSON.parse(variableLists);
         if (variableLists) {
-            setLists([...JSON.parse(variableLists)]);
+            setLists([...variableLists]);
+            if (listkey != undefined) {
+                variableLists.forEach((lista) => {
+                    if (lista.key == listkey) {
+                        setListName(lista.name);
+                    }
+                });
+            }
         }
     }
 

@@ -10,7 +10,7 @@ const AddItemScreen = ({ route, navigation }) => {
 
     const [lists, setLists] = useState(new Array());
     const [list, setList] = useState(new Object());
-    const [items, setItems] = useState(new Array());
+
     const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
@@ -23,7 +23,15 @@ const AddItemScreen = ({ route, navigation }) => {
             variableLists.forEach((lista) => {
                 if (lista.key == listkey) {
                     setList(lista);
-                    setItems([...lista.items]);
+                    if (itemkey != undefined) {
+                        variableLists.forEach((lista) => {
+                            lista.items.forEach((itemFor) => {
+                                if (itemFor.key == itemkey) {
+                                    setItemValue(itemFor.value);
+                                }
+                            });
+                        });
+                    }
                 }
             });
         }
@@ -66,18 +74,22 @@ const AddItemScreen = ({ route, navigation }) => {
 
             newItem.value = itemValue;
             newItem.lastUpdate = new Date();
+            newItems.forEach((itemFor) => {
+                if (itemFor == itemkey) {
+                    itemFor = item;
+                }
+            });
 
         } else {
 
             newItem = {
-                key: list.length,
+                key: newItems.length,
                 value: itemValue,
                 lastUpdate: new Date(),
             };
     
             newItems.push(newItem);
             newItems.sort(sortByDate);
-            setItems([...newItems]);
         }
 
         newList.items = newItems;
@@ -85,7 +97,7 @@ const AddItemScreen = ({ route, navigation }) => {
         setList(newList);
 
         newLists.forEach((lista) => {
-            if (lista.key == listakey) {
+            if (lista.key == listkey) {
                 newLists.lista = newList;
             }
         });

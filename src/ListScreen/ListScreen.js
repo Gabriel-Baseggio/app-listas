@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { StyleSheet, Button, Text, View } from "react-native";
+import { StyleSheet, Button, Text, View, Pressable } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -71,16 +71,18 @@ const ListScreen = ({ route, navigation }) => {
 
     const showItems = useMemo(() => {
         return (
-            items.map((item) => {
+            items.map((item, i) => {
                 return (
                     <View key={item.key} style={styles.itemContainer}>
-                        <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
-                        <Text style={styles.itemLastUpdate} key={item.value + item.lastUpdate}>{item.lastUpdate.toLocaleString()}</Text>
-                        <Button
-                            title="Editar"
-                            onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", listkey: listkey, itemkey: item.key }) }}
-                        />
-                        <Button title="X" onPress={() => deleteItem(item)} />
+                        <Pressable style={styles.item} onPress={() => { navigation.navigate("ListScreen", { listkey: list.key }) }}>
+                            <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
+                            <Text style={styles.itemLastUpdate} kewy={item.value + item.lastUpdate.toLocaleString()}>{item.lastUpdate.toLocaleString()}</Text>
+                            <Button
+                                title="Editar"
+                                onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", listkey: listkey, itemkey: item.key }) }}
+                            />
+                            <Button title="X" onPress={() => deleteItem(item)} />
+                        </Pressable>
                     </View>
                 );
             })
@@ -111,7 +113,7 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     itemContainer: {
-        display: "flex",
+        flex: 1,
         flexDirection: "row",
         padding: "5px",
         backgroundColor: '#0000FF',

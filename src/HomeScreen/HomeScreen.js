@@ -27,8 +27,8 @@ const HomeScreen = ({ navigation }) => {
                 return (
                     <View key={list.key} style={styles.listContainer}>
                         <Pressable style={styles.list} onPress={() => { navigation.navigate("ListScreen", { listkey: list.key }) }}>
-                            <Text style={styles.listName} key={list.name}>{list.name}</Text>
-                            <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate}>{list.lastUpdate.toLocaleString()}</Text>
+                            <Text style={styles.listName} key={list.name + list.key}>{list.name}</Text>
+                            <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate.toLocaleString()}>{list.lastUpdate.toLocaleString()}</Text>
                             <Button
                                 title="Editar"
                                 onPress={() => { navigation.navigate("AddListScreen", { text: "Editar", listkey: list.key }) }}
