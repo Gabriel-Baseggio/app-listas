@@ -58,10 +58,10 @@ const AddListScreen = ({ route, navigation }) => {
             const newList = {
                 key: lists.length,
                 name: listName,
-                // items: new Array(),
-                items: [
-                    {key: 0, value: "1", lastUpdate: new Date()}
-                ],
+                items: new Array(),
+                // items: [
+                //     {key: 0, value: "1", lastUpdate: new Date()}
+                // ],
                 lastUpdate: new Date(),
             };
     
