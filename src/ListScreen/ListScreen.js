@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
-import { StyleSheet, Button, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
+import { Icon } from '@rneui/themed';
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -49,7 +50,7 @@ const ListScreen = ({ route, navigation }) => {
         setItems([...newItems]);
 
         newList.lastUpdate = new Date();
-        setList([newList])
+        setList(newList)
 
         newLists.forEach(lista => {
             if (lista.key == listkey) {
@@ -71,16 +72,19 @@ const ListScreen = ({ route, navigation }) => {
 
     const showItems = useMemo(() => {
         return (
-            items.map((item, i) => {
+            items.map((item) => {
                 return (
                     <View key={item.key} style={styles.itemContainer}>
-                        <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
-                        <Text style={styles.itemLastUpdate} kewy={item.value + item.lastUpdate.toLocaleString()}>{item.lastUpdate.toLocaleString()}</Text>
-                        <Button
-                            title="Editar"
-                            onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", listkey: listkey, itemkey: item.key }) }}
-                        />
-                        <Button title="X" onPress={() => deleteItem(item)} />
+                        <View style={styles.item}>
+                            <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
+                            <Text style={styles.itemLastUpdate} kewy={item.value + item.lastUpdate.toLocaleString()}>{item.lastUpdate.toLocaleString()}</Text>
+                            <Pressable style={styles.button} onPress={() => { navigation.navigate("AddItemScreen", { text: "Editar", listkey: listkey, itemkey: item.key }) }}>
+                                <Icon name='edit' color='#FFFFFF' />
+                            </Pressable>
+                            <Pressable style={styles.button} onPress={() => deleteItem(item)}>
+                                <Icon name='delete' color='#FFFFFF' />
+                            </Pressable>
+                        </View>
                     </View>
                 );
             })
@@ -91,7 +95,9 @@ const ListScreen = ({ route, navigation }) => {
         <View style={styles.container}>
             <Text>{list.name}</Text>
 
-            <Button title="Adicionar um item" onPress={() => navigation.navigate("AddItemScreen", { text: "Adicionar", listkey: listkey })} />
+            <Pressable style={styles.button} onPress={() => navigation.navigate("AddItemScreen", { text: "Adicionar", listkey: listkey })}>
+                <Text style={styles.buttonText}>Adicionar um item</Text>
+            </Pressable>
 
             {showItems}
 
@@ -105,18 +111,28 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         gap: 15,
-        padding: "15px",
+        padding: 15,
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
     },
+    button: {
+        padding: 15,
+        borderRadius: 5,
+        backgroundColor: "#302D4C",
+        
+    },
+    buttonText: {
+        color: "#FFFFFF",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
     itemContainer: {
-        flex: 1,
-        flexDirection: "row",
-        padding: "5px",
-        backgroundColor: '#0000FF',
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: '#938CE6',
         alignItems: 'center',
-        justifyContent: "space-around",
+        justifyContent: "center",
         width: "95%",
     },
     item: {
@@ -127,10 +143,17 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     itemValue: {
-        width: "50px",
-        color: '#FFFFFF',
+        color: "#FFFFFF",
+        fontSize: 14,
+        fontWeight: "500",
+        width: "30%",
+        textAlign: "center",
     },
     itemLastUpdate: {
-        color: '#FFFFFF',
+        color: "#FFFFFF",
+        fontSize: 14,
+        fontWeight: "500",
+        width: "25%",
+        textAlign: "center",
     },
 });

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Button, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -59,9 +59,6 @@ const AddListScreen = ({ route, navigation }) => {
                 key: lists.length,
                 name: listName,
                 items: new Array(),
-                // items: [
-                //     {key: 0, value: "1", lastUpdate: new Date()}
-                // ],
                 lastUpdate: new Date(),
             };
     
@@ -75,16 +72,15 @@ const AddListScreen = ({ route, navigation }) => {
     
     return (
         <View style={styles.container}>
-            <Text>{text} {listName ? listName : "lista"}</Text>
             <TextInput
+                style={styles.input}
                 placeholder="Digite o nome da lista"
                 value={listName}
                 onChangeText={setListName}
             />
-            <Button
-                title={`${text} lista`}
-                onPress={() => {addList()}}
-            />
+            <Pressable style={styles.button} onPress={() => {addList()}}>
+                <Text style={styles.buttonText}>{text} lista</Text>
+            </Pressable>
         </View>
     );
 }
@@ -99,5 +95,25 @@ const styles = StyleSheet.create({
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
+    },
+    button: {
+        padding: 15,
+        borderRadius: 5,
+        backgroundColor: "#302D4C",
+        
+    },
+    buttonText: {
+        color: "#FFFFFF",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    input: {
+        width: "90%",
+        padding: 15,
+        fontSize: 18,
+        borderWidth: 3,
+        borderColor: "#161433",
+        borderStyle: "solid",
+        borderRadius: 5,
     },
 });

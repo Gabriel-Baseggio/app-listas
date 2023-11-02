@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Button, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -9,7 +9,6 @@ const AddItemScreen = ({ route, navigation }) => {
     const [itemValue, setItemValue] = useState("");
 
     const [lists, setLists] = useState(new Array());
-    const [list, setList] = useState(new Object());
 
     const focus = useIsFocused();
 
@@ -22,11 +21,11 @@ const AddItemScreen = ({ route, navigation }) => {
             setLists([...variableLists]);
             variableLists.forEach((lista) => {
                 if (lista.key == listkey) {
-                    setList(lista);
                     if (itemkey != undefined) {
                         variableLists.forEach((lista) => {
                             lista.items.forEach((itemFor) => {
                                 if (itemFor.key == itemkey) {
+                                    console.log(itemFor)
                                     setItemValue(itemFor.value);
                                 }
                             });
@@ -89,12 +88,11 @@ const AddItemScreen = ({ route, navigation }) => {
             };
     
             newItems.push(newItem);
-            newItems.sort(sortByDate);
         }
 
+        newItems.sort(sortByDate);
         newList.items = newItems;
         newList.lastUpdate = new Date();
-        setList(newList);
 
         newLists.forEach((lista) => {
             if (lista.key == listkey) {
@@ -111,16 +109,15 @@ const AddItemScreen = ({ route, navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>{text} {itemValue ? itemValue : "item"}</Text>
             <TextInput 
+                style={styles.input}
                 placeholder="Digite o valor do item"
                 value={itemValue}
                 onChangeText={setItemValue}
             />
-            <Button
-                title={`${text} item`}
-                onPress={() => {addItem()}}
-            />
+            <Pressable style={styles.button} onPress={() => {addItem()}}>
+                <Text style={styles.buttonText}>{text} item</Text>
+            </Pressable>
         </View>
     );
 }
@@ -135,5 +132,25 @@ const styles = StyleSheet.create({
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
         width: "100%",
+    },
+    button: {
+        padding: 15,
+        borderRadius: 5,
+        backgroundColor: "#302D4C",
+        
+    },
+    buttonText: {
+        color: "#FFFFFF",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    input: {
+        width: "90%",
+        padding: 15,
+        fontSize: 18,
+        borderWidth: 3,
+        borderColor: "#161433",
+        borderStyle: "solid",
+        borderRadius: 5,
     },
 });

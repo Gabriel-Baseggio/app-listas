@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View, Button, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable } from "react-native";
 import { useIsFocused } from "@react-navigation/native";
+import { Icon } from '@rneui/themed';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const HomeScreen = ({ navigation }) => {
@@ -28,12 +29,13 @@ const HomeScreen = ({ navigation }) => {
                     <View key={list.key} style={styles.listContainer}>
                         <Pressable style={styles.list} onPress={() => { navigation.navigate("ListScreen", { listkey: list.key }) }}>
                             <Text style={styles.listName} key={list.name + list.key}>{list.name}</Text>
-                            <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate.toLocaleString()}>{list.lastUpdate.toLocaleString()}</Text>
-                            <Button
-                                title="Editar"
-                                onPress={() => { navigation.navigate("AddListScreen", { text: "Editar", listkey: list.key }) }}
-                            />
-                            <Button title="X" onPress={() => deleteList(list)} />
+                            <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate}>{list.lastUpdate.toLocaleString()}</Text>
+                            <Pressable style={styles.button} onPress={() => { navigation.navigate("AddListScreen", { text: "Editar", listkey: list.key }) }}>
+                                <Icon name='edit' color='#FFFFFF' />
+                            </Pressable>
+                            <Pressable style={styles.button} onPress={() => deleteList(list)}>
+                                <Icon name='delete' color='#FFFFFF' />
+                            </Pressable>
                         </Pressable>
                     </View>
                 );
@@ -66,15 +68,13 @@ const HomeScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text>Tela inicial</Text>
-            <Button
-                title="Adicionar uma lista"
-                onPress={() => { navigation.navigate("AddListScreen", { text: "Adicionar" }) }}
-            />
-            <Button
-                title="Resetar as listas"
-                onPress={() => resetLists()}
-            />
+            <Pressable style={styles.button} onPress={() => { navigation.navigate("AddListScreen", { text: "Adicionar" }) }}>
+                <Text style={styles.buttonText}>Adicionar uma lista</Text>
+            </Pressable>
+
+            <Pressable style={styles.button} onPress={() => resetLists()}>
+                <Text style={styles.buttonText}>Resetar as listas</Text>
+            </Pressable>
 
             {showLists}
 
@@ -93,28 +93,44 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: "100%",
     },
+    button: {
+        padding: 15,
+        borderRadius: 5,
+        backgroundColor: "#302D4C",
+        
+    },
+    buttonText: {
+        color: "#FFFFFF",
+        fontSize: 18,
+        fontWeight: "bold",
+    },
     listContainer: {
-        flex: 1,
-        flexDirection: "row",
-        padding: 5,
-        backgroundColor: '#0000FF',
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: '#938CE6',
         alignItems: 'center',
-        justifyContent: "space-around",
+        justifyContent: "center",
         width: "95%",
     },
     list: {
-        flex: 1,
+        display: "flex",
         flexDirection: "row",
         alignItems: 'center',
-        justifyContent: "space-around",
+        justifyContent: "space-between",
         width: "100%",
-        height: "auto",
     },
     listName: {
-        width: "50px",
-        color: '#FFFFFF',
+        color: "#FFFFFF",
+        fontSize: 14,
+        fontWeight: "500",
+        width: "30%",
+        textAlign: "center",
     },
     listLastUpdate: {
-        color: '#FFFFFF',
+        color: "#FFFFFF",
+        fontSize: 14,
+        fontWeight: "500",
+        width: "25%",
+        textAlign: "center",
     },
 });
