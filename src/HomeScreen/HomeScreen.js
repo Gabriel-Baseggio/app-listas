@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, View, Pressable } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
+import { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
     const [lists, setLists] = useState(new Array());    
@@ -11,7 +11,7 @@ const HomeScreen = ({ navigation }) => {
     useEffect(() => { getLists() }, [focus]);
 
     const getLists = async () => {
-        const variableLists = await AsyncStorage.getItem("LISTS");
+        const variableLists = await AsyncStorage.getItem('LISTS');
         if (variableLists) {
             setLists([...JSON.parse(variableLists)]);
         }
@@ -19,7 +19,19 @@ const HomeScreen = ({ navigation }) => {
 
     const saveLists = async () => {
         const saveLists = lists || new Array();
-        await AsyncStorage.setItem("LISTS", JSON.stringify(saveLists));
+        await AsyncStorage.setItem('LISTS', JSON.stringify(saveLists));
+    }
+
+    const getFormattedDate = (date) => {
+        date = new Date(date);
+
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+
+        let hours = date.getHours();
+        let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
+        return `${day}/${month}/${year} ${hours}:${minutes}`
     }
 
     const showLists = useMemo(() => {
@@ -27,10 +39,10 @@ const HomeScreen = ({ navigation }) => {
             lists.map((list) => {
                 return (
                     <View key={list.key} style={styles.listContainer}>
-                        <Pressable style={styles.list} onPress={() => { navigation.navigate("ListScreen", { listkey: list.key }) }}>
+                        <Pressable style={styles.list} onPress={() => { navigation.navigate('ListScreen', { listkey: list.key }) }}>
                             <Text style={styles.listName} key={list.name + list.key}>{list.name}</Text>
-                            <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate}>{list.lastUpdate.toLocaleString()}</Text>
-                            <Pressable style={styles.button} onPress={() => { navigation.navigate("AddListScreen", { text: "Editar", listkey: list.key }) }}>
+                            <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate}>{getFormattedDate(list.lastUpdate)}</Text>
+                            <Pressable style={styles.button} onPress={() => { navigation.navigate('AddListScreen', { text: 'Editar', listkey: list.key }) }}>
                                 <Icon name='edit' color='#FFFFFF' />
                             </Pressable>
                             <Pressable style={styles.button} onPress={() => deleteList(list)}>
@@ -61,76 +73,79 @@ const HomeScreen = ({ navigation }) => {
         setLists([...newLists]);
     }
 
-    const resetLists = async () => {
-        await AsyncStorage.setItem("LISTS", JSON.stringify(new Array()));
+    const clearLists = async () => {
+        await AsyncStorage.setItem('LISTS', JSON.stringify(new Array()));
         getLists();
     }
 
     return (
-        <View style={styles.container}>
-            <Pressable style={styles.button} onPress={() => { navigation.navigate("AddListScreen", { text: "Adicionar" }) }}>
-                <Text style={styles.buttonText}>Adicionar uma lista</Text>
-            </Pressable>
+        <ScrollView style={styles.scrollContainer}>
+            <View style={styles.container}>
+                <Pressable style={styles.button} onPress={() => { navigation.navigate('AddListScreen', { text: 'Adicionar' }) }}>
+                    <Text style={styles.buttonText}>Adicionar uma lista</Text>
+                </Pressable>
 
-            <Pressable style={styles.button} onPress={() => resetLists()}>
-                <Text style={styles.buttonText}>Resetar as listas</Text>
-            </Pressable>
+                <Pressable style={styles.button} onPress={() => clearLists()}>
+                    <Text style={styles.buttonText}>Limpar listas</Text>
+                </Pressable>
 
-            {showLists}
-
-        </View>
+                {showLists}
+            </View>
+        </ScrollView>
     );
 }
 
 export default HomeScreen;
 
 const styles = StyleSheet.create({
+    scrollContainer: {
+        width: '100%',
+        backgroundColor: '#DEE5E5',
+    },
     container: {
         flex: 1,
         gap: 15,
         padding: 15,
-        backgroundColor: '#DEE5E5',
         alignItems: 'center',
-        width: "100%",
+        width: '100%',
     },
     button: {
         padding: 15,
         borderRadius: 5,
-        backgroundColor: "#302D4C",
-        
+        backgroundColor: '#302D4C',
     },
     buttonText: {
-        color: "#FFFFFF",
+        color: '#FFFFFF',
         fontSize: 18,
-        fontWeight: "bold",
+        fontWeight: 'bold',
     },
     listContainer: {
         padding: 10,
         borderRadius: 5,
         backgroundColor: '#938CE6',
         alignItems: 'center',
-        justifyContent: "center",
-        width: "95%",
+        justifyContent: 'center',
+        width: '95%',
     },
     list: {
-        display: "flex",
-        flexDirection: "row",
+        display: 'flex',
+        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: "space-between",
-        width: "100%",
+        justifyContent: 'space-between',
+        width: '100%',
     },
     listName: {
-        color: "#FFFFFF",
-        fontSize: 14,
-        fontWeight: "500",
-        width: "30%",
-        textAlign: "center",
+        color: '#302D4C',
+        fontSize: 18,
+        fontWeight: '500',
+        width: '25%',
+        textAlign: 'center',
     },
     listLastUpdate: {
-        color: "#FFFFFF",
-        fontSize: 14,
-        fontWeight: "500",
-        width: "25%",
-        textAlign: "center",
+        color: '#302D4C',
+        fontSize: 18,
+        fontWeight: '500',
+        width: '26%',
+        textAlign: 'center',
     },
 });

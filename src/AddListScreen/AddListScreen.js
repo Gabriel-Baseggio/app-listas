@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
-import { useIsFocused } from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddListScreen = ({ route, navigation }) => {
     const { text, listkey } = route.params;
-    const [listName, setListName] = useState("");
+    const [listName, setListName] = useState('');
     const [lists, setLists] = useState(new Array());
     const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
 
     const getLists = async () => {
-        let variableLists = await AsyncStorage.getItem("LISTS");
+        let variableLists = await AsyncStorage.getItem('LISTS');
         variableLists = JSON.parse(variableLists);
         if (variableLists) {
             setLists([...variableLists]);
@@ -28,7 +28,7 @@ const AddListScreen = ({ route, navigation }) => {
 
     const saveLists = async () => {
         const saveLists = lists || new Array();
-        await AsyncStorage.setItem("LISTS", JSON.stringify(saveLists));
+        await AsyncStorage.setItem('LISTS', JSON.stringify(saveLists));
     }
 
     const sortByDate = (a, b) => {
@@ -41,7 +41,7 @@ const AddListScreen = ({ route, navigation }) => {
 
     const addList = () => {
         if (!listName) {
-            alert("Por favor digite um nome!")
+            alert('Por favor digite um nome!')
             return
         }
 
@@ -67,14 +67,14 @@ const AddListScreen = ({ route, navigation }) => {
 
         newLists.sort(sortByDate);
         saveLists();
-        navigation.navigate("HomeScreen");
+        navigation.navigate('HomeScreen');
     }
     
     return (
         <View style={styles.container}>
             <TextInput
                 style={styles.input}
-                placeholder="Digite o nome da lista"
+                placeholder='Digite o nome da lista'
                 value={listName}
                 onChangeText={setListName}
             />
@@ -94,26 +94,25 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: '#DEE5E5',
         alignItems: 'center',
-        width: "100%",
+        width: '100%',
     },
     button: {
         padding: 15,
         borderRadius: 5,
-        backgroundColor: "#302D4C",
-        
+        backgroundColor: '#302D4C',
     },
     buttonText: {
-        color: "#FFFFFF",
+        color: '#FFFFFF',
         fontSize: 18,
-        fontWeight: "bold",
+        fontWeight: 'bold',
     },
     input: {
-        width: "90%",
+        width: '90%',
         padding: 15,
         fontSize: 18,
         borderWidth: 3,
-        borderColor: "#161433",
-        borderStyle: "solid",
+        borderColor: '#161433',
+        borderStyle: 'solid',
         borderRadius: 5,
     },
 });
