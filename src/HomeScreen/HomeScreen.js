@@ -25,11 +25,11 @@ const HomeScreen = ({ navigation }) => {
     const getFormattedDate = (date) => {
         date = new Date(date);
 
-        let day = date.getDate();
-        let month = date.getMonth() + 1;
+        let day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
+        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
         let year = date.getFullYear();
 
-        let hours = date.getHours();
+        let hours = date.getHours() < 10 ? `0${date.getHours()}`: date.getHours();
         let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
         return `${day}/${month}/${year} ${hours}:${minutes}`
     }
@@ -78,6 +78,52 @@ const HomeScreen = ({ navigation }) => {
         getLists();
     }
 
+    const sortByDateDesc = (a, b) => {
+        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+    
+    const sortByDateAsc = (a, b) => {
+        if (new Date(a.lastUpdate) < new Date(b.lastUpdate)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortDate = (sortFunc) => {
+        const newLists = lists;
+        newLists.sort(sortFunc);
+        saveLists();
+        getLists();
+    }
+
+    const sortByNameAsc = (a, b) => {
+        if (a.name <= b.name) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortByNameDesc = (a, b) => {
+        if (a.name > b.name) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortName = (sortFunc) => {
+        const newLists = lists;
+        newLists.sort(sortFunc);
+        saveLists();
+        getLists();
+    }
+
     return (
         <ScrollView style={styles.scrollContainer}>
             <View style={styles.container}>
@@ -87,6 +133,22 @@ const HomeScreen = ({ navigation }) => {
 
                 <Pressable style={styles.button} onPress={() => clearLists()}>
                     <Text style={styles.buttonText}>Limpar listas</Text>
+                </Pressable>
+
+                <Pressable style={styles.button} onPress={() => sortDate(sortByDateAsc)}>
+                    <Text style={styles.buttonText}>Data crescente</Text>
+                </Pressable>
+
+                <Pressable style={styles.button} onPress={() => sortDate(sortByDateDesc)}>
+                    <Text style={styles.buttonText}>Data decrescente</Text>
+                </Pressable>
+
+                <Pressable style={styles.button} onPress={() => sortName(sortByNameDesc)}>
+                    <Text style={styles.buttonText}>Nome decrescente</Text>
+                </Pressable>
+                
+                <Pressable style={styles.button} onPress={() => sortName(sortByNameAsc)}>
+                    <Text style={styles.buttonText}>Nome crescente</Text>
                 </Pressable>
 
                 {showLists}
@@ -145,7 +207,7 @@ const styles = StyleSheet.create({
         color: '#302D4C',
         fontSize: 18,
         fontWeight: '500',
-        width: '26%',
+        width: '30%',
         textAlign: 'center',
     },
 });
