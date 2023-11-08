@@ -2,13 +2,34 @@ import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
+import SelectDropdown from 'react-native-select-dropdown'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
-    const [lists, setLists] = useState(new Array());    
+    const [lists, setLists] = useState(new Array());
+    const [filter, setFilter] = useState("");
     const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
+    useEffect(() => {
+        switch (filter) {
+            case "Data crescente":
+                sortLists(sortByDateAsc);
+                break;
+            case "Data decrescente":
+                sortLists(sortByDateDesc);
+                break;
+            case "Nome decrescente":
+                sortLists(sortByNameDesc);
+                break;
+            case "Nome crescente":
+                sortLists(sortByNameAsc);
+                break;
+            default:
+                sortLists(sortByDateDesc);
+                break;
+        }
+    }, [filter]);
 
     const getLists = async () => {
         const variableLists = await AsyncStorage.getItem('LISTS');
@@ -29,7 +50,7 @@ const HomeScreen = ({ navigation }) => {
         let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
         let year = date.getFullYear();
 
-        let hours = date.getHours() < 10 ? `0${date.getHours()}`: date.getHours();
+        let hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
         let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
         return `${day}/${month}/${year} ${hours}:${minutes}`
     }
@@ -85,20 +106,13 @@ const HomeScreen = ({ navigation }) => {
             return 1;
         }
     }
-    
+
     const sortByDateAsc = (a, b) => {
         if (new Date(a.lastUpdate) < new Date(b.lastUpdate)) {
             return -1;
         } else {
             return 1;
         }
-    }
-
-    const sortDate = (sortFunc) => {
-        const newLists = lists;
-        newLists.sort(sortFunc);
-        saveLists();
-        getLists();
     }
 
     const sortByNameAsc = (a, b) => {
@@ -117,11 +131,10 @@ const HomeScreen = ({ navigation }) => {
         }
     }
 
-    const sortName = (sortFunc) => {
+    const sortLists = (sortFunc) => {
         const newLists = lists;
         newLists.sort(sortFunc);
-        saveLists();
-        getLists();
+        setLists([...newLists]);
     }
 
     return (
@@ -135,21 +148,16 @@ const HomeScreen = ({ navigation }) => {
                     <Text style={styles.buttonText}>Limpar listas</Text>
                 </Pressable>
 
-                <Pressable style={styles.button} onPress={() => sortDate(sortByDateAsc)}>
-                    <Text style={styles.buttonText}>Data crescente</Text>
-                </Pressable>
-
-                <Pressable style={styles.button} onPress={() => sortDate(sortByDateDesc)}>
-                    <Text style={styles.buttonText}>Data decrescente</Text>
-                </Pressable>
-
-                <Pressable style={styles.button} onPress={() => sortName(sortByNameDesc)}>
-                    <Text style={styles.buttonText}>Nome decrescente</Text>
-                </Pressable>
-                
-                <Pressable style={styles.button} onPress={() => sortName(sortByNameAsc)}>
-                    <Text style={styles.buttonText}>Nome crescente</Text>
-                </Pressable>
+                <SelectDropdown
+                    data={new Array("Data crescente", "Data decrescente", "Nome crescente", "Nome decrescente")}
+                    onSelect={(selectedItem) => {
+                        setFilter(selectedItem);
+                    }}
+                    defaultValue={"Data decrescente"}
+                    buttonStyle={styles.button}
+                    buttonTextStyle={styles.buttonText}
+                    dropdownStyle={styles.dropdown}
+                />
 
                 {showLists}
             </View>
@@ -180,6 +188,10 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    dropdown: {
+        backgroundColor: '#938CE6', 
+        color: '#302D4C',
     },
     listContainer: {
         padding: 10,
