@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { Icon } from '@rneui/themed';
@@ -9,6 +9,8 @@ const HomeScreen = ({ navigation }) => {
     const [lists, setLists] = useState(new Array());
     const [filter, setFilter] = useState("");
     const focus = useIsFocused();
+
+    const dropdownRef = useRef({});
 
     useEffect(() => { getLists() }, [focus]);
     useEffect(() => {
@@ -55,15 +57,20 @@ const HomeScreen = ({ navigation }) => {
         return `${day}/${month}/${year} ${hours}:${minutes}`
     }
 
+    const resetFilters = () => {
+        setFilter("");
+        dropdownRef.current.reset();
+    }
+
     const showLists = useMemo(() => {
         return (
             lists.map((list) => {
                 return (
                     <View key={list.key} style={styles.listContainer}>
-                        <Pressable style={styles.list} onPress={() => { navigation.navigate('ListScreen', { listkey: list.key }) }}>
+                        <Pressable style={styles.list} onPress={() => { resetFilters(); navigation.navigate('ListScreen', { listkey: list.key }) }}>
                             <Text style={styles.listName} key={list.name + list.key}>{list.name}</Text>
                             <Text style={styles.listLastUpdate} key={list.name + list.lastUpdate}>{getFormattedDate(list.lastUpdate)}</Text>
-                            <Pressable style={styles.button} onPress={() => { navigation.navigate('AddListScreen', { text: 'Editar', listkey: list.key }) }}>
+                            <Pressable style={styles.button} onPress={() => { resetFilters(); navigation.navigate('AddListScreen', { text: 'Editar', listkey: list.key }) }}>
                                 <Icon name='edit' color='#FFFFFF' />
                             </Pressable>
                             <Pressable style={styles.button} onPress={() => deleteList(list)}>
@@ -140,7 +147,7 @@ const HomeScreen = ({ navigation }) => {
     return (
         <ScrollView style={styles.scrollContainer}>
             <View style={styles.container}>
-                <Pressable style={styles.button} onPress={() => { navigation.navigate('AddListScreen', { text: 'Adicionar' }) }}>
+                <Pressable style={styles.button} onPress={() => { resetFilters(); navigation.navigate('AddListScreen', { text: 'Adicionar' }) }}>
                     <Text style={styles.buttonText}>Adicionar uma lista</Text>
                 </Pressable>
 
@@ -149,12 +156,14 @@ const HomeScreen = ({ navigation }) => {
                 </Pressable>
 
                 <SelectDropdown
+                    ref={dropdownRef}
                     data={new Array("Data crescente", "Data decrescente", "Nome crescente", "Nome decrescente")}
                     onSelect={(selectedItem) => {
                         setFilter(selectedItem);
                     }}
-                    defaultValue={"Data decrescente"}
+                    defaultButtonText={"Ordenar por"}
                     buttonStyle={styles.button}
+                    rowStyle={styles.rowDropdown}
                     buttonTextStyle={styles.buttonText}
                     dropdownStyle={styles.dropdown}
                 />
@@ -192,6 +201,9 @@ const styles = StyleSheet.create({
     dropdown: {
         backgroundColor: '#938CE6', 
         color: '#302D4C',
+    },
+    rowDropdown: {
+        borderColor: '#302D4C',
     },
     listContainer: {
         padding: 10,

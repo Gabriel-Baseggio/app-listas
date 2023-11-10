@@ -1,8 +1,9 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
 import { Icon } from '@rneui/themed';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SelectDropdown from 'react-native-select-dropdown';
 
 const ListScreen = ({ route, navigation }) => {
     const { listkey } = route.params;
@@ -10,10 +11,32 @@ const ListScreen = ({ route, navigation }) => {
     const [lists, setLists] = useState(new Array());
     const [list, setList] = useState(new Object());
     const [items, setItems] = useState(new Array());
+    const [filter, setFilter] = useState("");
+
+    const dropdownRef = useRef({});
 
     const focus = useIsFocused();
 
     useEffect(() => { getLists() }, [focus]);
+    useEffect(() => {
+        switch (filter) {
+            case "Data crescente":
+                sortItems(sortByDateAsc);
+                break;
+            case "Data decrescente":
+                sortItems(sortByDateDesc);
+                break;
+            case "Valor decrescente":
+                sortItems(sortByValueDesc);
+                break;
+            case "Valor crescente":
+                sortItems(sortByValueAsc);
+                break;
+            default:
+                sortItems(sortByDateDesc);
+                break;
+        }
+    }, [filter]);
 
     const getLists = async () => {
         let variableLists = await AsyncStorage.getItem('LISTS');
@@ -44,7 +67,7 @@ const ListScreen = ({ route, navigation }) => {
                 newItems.splice(i, 1);
             }
         });
-        
+
         newItems = resetKeys(newItems);
         setItems([...newItems]);
 
@@ -69,14 +92,6 @@ const ListScreen = ({ route, navigation }) => {
         return newItems;
     }
 
-    const sortByDate = (a, b) => {
-        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
     const clearItems = () => {
         let newLists = lists;
         let newList = list;
@@ -91,8 +106,8 @@ const ListScreen = ({ route, navigation }) => {
                 lista.items = new Array();
             }
         });
-        
-        newLists.sort(sortByDate);
+
+        newLists.sort(sortByDateDesc);
         setLists([...newLists]);
 
         saveLists();
@@ -107,9 +122,52 @@ const ListScreen = ({ route, navigation }) => {
         let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
         let year = date.getFullYear();
 
-        let hours = date.getHours() < 10 ? `0${date.getHours()}`: date.getHours();
+        let hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
         let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
         return `${day}/${month}/${year} ${hours}:${minutes}`
+    }
+
+    const sortByDateDesc = (a, b) => {
+        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortByDateAsc = (a, b) => {
+        if (new Date(a.lastUpdate) < new Date(b.lastUpdate)) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortByValueAsc = (a, b) => {
+        if (a.value <= b.value) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortByValueDesc = (a, b) => {
+        if (a.value > b.value) {
+            return -1;
+        } else {
+            return 1;
+        }
+    }
+
+    const sortItems = (sortFunc) => {
+        const newItems = items;
+        newItems.sort(sortFunc);
+        setItems([...newItems]);
+    }
+
+    const resetFilters = () => {
+        setFilter("");
+        dropdownRef.current.reset();
     }
 
     const showItems = useMemo(() => {
@@ -120,7 +178,7 @@ const ListScreen = ({ route, navigation }) => {
                         <View style={styles.item}>
                             <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
                             <Text style={styles.itemLastUpdate} kewy={item.value + item.lastUpdate}>{getFormattedDate(item.lastUpdate)}</Text>
-                            <Pressable style={styles.button} onPress={() => { navigation.navigate('AddItemScreen', { text: 'Editar', listkey: listkey, itemkey: item.key }) }}>
+                            <Pressable style={styles.button} onPress={() => { resetFilters(); navigation.navigate('AddItemScreen', { text: 'Editar', listkey: listkey, itemkey: item.key }) }}>
                                 <Icon name='edit' color='#FFFFFF' />
                             </Pressable>
                             <Pressable style={styles.button} onPress={() => deleteItem(item)}>
@@ -134,17 +192,30 @@ const ListScreen = ({ route, navigation }) => {
     }, [items]);
 
     return (
-        <ScrollView style={styles.scrollContainer}>  
+        <ScrollView style={styles.scrollContainer}>
             <View style={styles.container}>
                 <Text style={styles.title}>{list.name}</Text>
 
-                <Pressable style={styles.button} onPress={() => navigation.navigate('AddItemScreen', { text: 'Adicionar', listkey: listkey })}>
+                <Pressable style={styles.button} onPress={() => { resetFilters(); navigation.navigate('AddItemScreen', { text: 'Adicionar', listkey: listkey }) }}>
                     <Text style={styles.buttonText}>Adicionar um item</Text>
                 </Pressable>
 
                 <Pressable style={styles.button} onPress={() => clearItems()}>
                     <Text style={styles.buttonText}>Limpar items</Text>
                 </Pressable>
+
+                <SelectDropdown
+                    ref={dropdownRef}
+                    data={new Array("Data crescente", "Data decrescente", "Valor crescente", "Valor decrescente")}
+                    onSelect={(selectedItem) => {
+                        setFilter(selectedItem);
+                    }}
+                    defaultButtonText={"Ordenar por"}
+                    buttonStyle={styles.button}
+                    rowStyle={styles.rowDropdown}
+                    buttonTextStyle={styles.buttonText}
+                    dropdownStyle={styles.dropdown}
+                />
 
                 {showItems}
             </View>
@@ -166,11 +237,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         width: '100%',
     },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        textAlign: 'center',
-    },
     button: {
         padding: 15,
         borderRadius: 5,
@@ -180,6 +246,13 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    dropdown: {
+        backgroundColor: '#938CE6',
+        color: '#302D4C',
+    },
+    rowDropdown: {
+        borderColor: '#302D4C',
     },
     itemContainer: {
         padding: 10,
