@@ -82,6 +82,7 @@ const ListScreen = ({ route, navigation }) => {
                 lista.items = newItems;
             }
         });
+        newLists.sort(sortByDateDesc);
         setLists([...newLists]);
 
         saveLists();
