@@ -3,10 +3,12 @@ import { StyleSheet, Text, TextInput, View, Pressable } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { sortByDateDesc } from '../utils/sortFunctions.js';
+
 const AddItemScreen = ({ route, navigation }) => {
     const { text, listkey, itemkey } = route.params;
 
-    const [itemValue, setItemValue] = useState('');
+    const [itemName, setItemName] = useState('');
 
     const [lists, setLists] = useState(new Array());
 
@@ -17,17 +19,17 @@ const AddItemScreen = ({ route, navigation }) => {
     const getLists = async () => {
         let variableLists = await AsyncStorage.getItem('LISTS');
         variableLists = JSON.parse(variableLists);
+
         if (variableLists) {
             setLists([...variableLists]);
+            
             variableLists.forEach((lista) => {
                 if (lista.key == listkey) {
                     if (itemkey != undefined) {
-                        variableLists.forEach((lista) => {
-                            lista.items.forEach((itemFor) => {
-                                if (itemFor.key == itemkey) {
-                                    setItemValue(itemFor.value);
-                                }
-                            });
+                        lista.items.forEach((itemFor) => {
+                            if (itemFor.key == itemkey) {
+                                setItemName(itemFor.name);
+                            }
                         });
                     }
                 }
@@ -40,17 +42,9 @@ const AddItemScreen = ({ route, navigation }) => {
         await AsyncStorage.setItem('LISTS', JSON.stringify(saveLists));
     }
 
-    const sortByDate = (a, b) => {
-        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
     const addItem = () => {
-        if (!itemValue) {
-            alert('Por favor digite um valor!')
+        if (!itemName) {
+            alert('Por favor digite um nome!')
             return
         }
 
@@ -70,7 +64,7 @@ const AddItemScreen = ({ route, navigation }) => {
 
         if (newItem != undefined) {
 
-            newItem.value = itemValue;
+            newItem.name = itemName;
             newItem.lastUpdate = new Date();
             newItems.forEach((itemFor) => {
                 if (itemFor == itemkey) {
@@ -82,14 +76,14 @@ const AddItemScreen = ({ route, navigation }) => {
 
             newItem = {
                 key: newItems.length,
-                value: itemValue,
+                name: itemName,
                 lastUpdate: new Date(),
             };
     
             newItems.push(newItem);
         }
 
-        newItems.sort(sortByDate);
+        newItems.sort(sortByDateDesc);
         newList.items = newItems;
         newList.lastUpdate = new Date();
 
@@ -99,7 +93,7 @@ const AddItemScreen = ({ route, navigation }) => {
             }
         });
     
-        newLists.sort(sortByDate);
+        newLists.sort(sortByDateDesc);
         setLists([...newLists]);
         
         saveLists();
@@ -110,9 +104,9 @@ const AddItemScreen = ({ route, navigation }) => {
         <View style={styles.container}>
             <TextInput 
                 style={styles.input}
-                placeholder='Digite o valor do item'
-                value={itemValue}
-                onChangeText={setItemValue}
+                placeholder='Digite o nome do item'
+                value={itemName}
+                onChangeText={setItemName}
             />
             <Pressable style={styles.button} onPress={() => {addItem()}}>
                 <Text style={styles.buttonText}>{text} item</Text>

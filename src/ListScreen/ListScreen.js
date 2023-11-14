@@ -5,6 +5,9 @@ import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SelectDropdown from 'react-native-select-dropdown';
 
+import { sortByDateAsc, sortByDateDesc, sortByNameAsc, sortByNameDesc } from '../utils/sortFunctions.js';
+import { getFormattedDate } from '../utils/formatDate.js';
+
 const ListScreen = ({ route, navigation }) => {
     const { listkey } = route.params;
 
@@ -26,11 +29,11 @@ const ListScreen = ({ route, navigation }) => {
             case "Data decrescente":
                 sortItems(sortByDateDesc);
                 break;
-            case "Valor decrescente":
-                sortItems(sortByValueDesc);
+            case "Nome decrescente":
+                sortItems(sortByNameDesc);
                 break;
-            case "Valor crescente":
-                sortItems(sortByValueAsc);
+            case "Nome crescente":
+                sortItems(sortByNameAsc);
                 break;
             default:
                 sortItems(sortByDateDesc);
@@ -115,50 +118,6 @@ const ListScreen = ({ route, navigation }) => {
         getLists();
     }
 
-    const getFormattedDate = (date) => {
-        date = new Date(date);
-
-        let day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-        let year = date.getFullYear();
-
-        let hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
-        let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
-        return `${day}/${month}/${year} ${hours}:${minutes}`
-    }
-
-    const sortByDateDesc = (a, b) => {
-        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
-    const sortByDateAsc = (a, b) => {
-        if (new Date(a.lastUpdate) < new Date(b.lastUpdate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
-    const sortByValueAsc = (a, b) => {
-        if (a.value <= b.value) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
-    const sortByValueDesc = (a, b) => {
-        if (a.value > b.value) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
     const sortItems = (sortFunc) => {
         const newItems = items;
         newItems.sort(sortFunc);
@@ -176,8 +135,8 @@ const ListScreen = ({ route, navigation }) => {
                 return (
                     <View key={item.key} style={styles.itemContainer}>
                         <View style={styles.item}>
-                            <Text style={styles.itemValue} key={item.value + item.key}>{item.value}</Text>
-                            <Text style={styles.itemLastUpdate} kewy={item.value + item.lastUpdate}>{getFormattedDate(item.lastUpdate)}</Text>
+                            <Text style={styles.itemName} key={item.name + item.key}>{item.name}</Text>
+                            <Text style={styles.itemLastUpdate} kewy={item.name + item.lastUpdate}>{getFormattedDate(item.lastUpdate)}</Text>
                             <Pressable style={styles.button} onPress={() => { resetFilters(); navigation.navigate('AddItemScreen', { text: 'Editar', listkey: listkey, itemkey: item.key }) }}>
                                 <Icon name='edit' color='#FFFFFF' />
                             </Pressable>
@@ -206,7 +165,7 @@ const ListScreen = ({ route, navigation }) => {
 
                 <SelectDropdown
                     ref={dropdownRef}
-                    data={new Array("Data crescente", "Data decrescente", "Valor crescente", "Valor decrescente")}
+                    data={new Array("Data crescente", "Data decrescente", "Nome crescente", "Nome decrescente")}
                     onSelect={(selectedItem) => {
                         setFilter(selectedItem);
                     }}
@@ -268,7 +227,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         width: '100%',
     },
-    itemValue: {
+    itemName: {
         color: '#302D4C',
         fontSize: 18,
         fontWeight: '500',

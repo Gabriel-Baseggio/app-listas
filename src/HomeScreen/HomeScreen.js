@@ -5,6 +5,9 @@ import { Icon } from '@rneui/themed';
 import SelectDropdown from 'react-native-select-dropdown'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { sortByDateAsc, sortByDateDesc, sortByNameAsc, sortByNameDesc } from '../utils/sortFunctions.js';
+import { getFormattedDate } from '../utils/formatDate.js';
+
 const HomeScreen = ({ navigation }) => {
     const [lists, setLists] = useState(new Array());
     const [filter, setFilter] = useState("");
@@ -43,18 +46,6 @@ const HomeScreen = ({ navigation }) => {
     const saveLists = async () => {
         const saveLists = lists || new Array();
         await AsyncStorage.setItem('LISTS', JSON.stringify(saveLists));
-    }
-
-    const getFormattedDate = (date) => {
-        date = new Date(date);
-
-        let day = date.getDate() < 10 ? `0${date.getDate()}` : date.getDate();
-        let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1;
-        let year = date.getFullYear();
-
-        let hours = date.getHours() < 10 ? `0${date.getHours()}` : date.getHours();
-        let minutes = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
-        return `${day}/${month}/${year} ${hours}:${minutes}`
     }
 
     const resetFilters = () => {
@@ -104,38 +95,6 @@ const HomeScreen = ({ navigation }) => {
     const clearLists = async () => {
         await AsyncStorage.setItem('LISTS', JSON.stringify(new Array()));
         getLists();
-    }
-
-    const sortByDateDesc = (a, b) => {
-        if (new Date(a.lastUpdate) >= new Date(b.lastUpdate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
-    const sortByDateAsc = (a, b) => {
-        if (new Date(a.lastUpdate) < new Date(b.lastUpdate)) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
-    const sortByNameAsc = (a, b) => {
-        if (a.name <= b.name) {
-            return -1;
-        } else {
-            return 1;
-        }
-    }
-
-    const sortByNameDesc = (a, b) => {
-        if (a.name > b.name) {
-            return -1;
-        } else {
-            return 1;
-        }
     }
 
     const sortLists = (sortFunc) => {
