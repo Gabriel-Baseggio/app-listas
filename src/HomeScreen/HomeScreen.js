@@ -178,7 +178,6 @@ export default HomeScreen;
 
 const styles = StyleSheet.create({
     scrollContainer: {
-        width: '100%',
         backgroundColor: '#DEE5E5',
     },
     container: {
